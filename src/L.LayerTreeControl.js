@@ -21,11 +21,12 @@ L.Control.LayerTreeControl = L.Control.extend({
     const leafletProvider = this._leafletProvider;
     const treeContainer = this._treeContainer;
 
+    // by creating a placeholder div here, we ensure the order of layers is preserved while the data is fetched
+    const container = L.DomUtil.create('div', '', treeContainer);
+
     // esriDynamic type
     if (layerObj.type === 'esriDynamic') {
       this._map.addLayer(layerObj.layer);
-      // by creating a placeholder div here, we ensure the order of layers is preserved while the data is fetched
-      const container = L.DomUtil.create('div', '', treeContainer);
       esriProvider.getTree(layerId, layerName, layerObj).then(function (layersTree) {
         treeLeaf = treeLeafUI.render(layersTree, container);
       });
@@ -42,13 +43,11 @@ L.Control.LayerTreeControl = L.Control.extend({
       }
 
       leafletProvider.getTree(layerId, layerName, opts).then(function (layersTree) {
-        treeLeaf = treeLeafUI.render(layersTree, treeContainer);
+        treeLeaf = treeLeafUI.render(layersTree, container);
       });
     }
     // esriFeature type
     else if (layerObj.type === 'esriFeature') {
-      // by creating a placeholder div here, we ensure the order of layers is preserved while the data is fetched
-      const container = L.DomUtil.create('div', '', treeContainer);
       this._map.addLayer(layerObj.layer);
       esriProvider.getTree(layerId, layerName, layerObj).then(function (layersTree) {
         treeLeaf = treeLeafUI.render(layersTree, container);
