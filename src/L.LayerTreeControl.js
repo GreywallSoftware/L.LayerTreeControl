@@ -55,9 +55,21 @@ L.Control.LayerTreeControl = L.Control.extend({
     }
   },
 
+  _renderCollapse: function (container) {
+    const _collapseContainer = L.DomUtil.create('div', 'layer-tree-collapse-control', container);
+    _collapseContainer.innerText = 'Collapse';
+    L.DomEvent.on(_collapseContainer, 'click', function (event) {
+      const collapsed = container.classList.toggle('layer-tree-control-collapsed');
+      _collapseContainer.innerText = collapsed ? 'Expand' : 'Collapse';
+    });
+  },
+
   onAdd: function (map) {
     var container = L.DomUtil.create('div', 'layer-tree-control');
-    this._treeContainer = L.DomUtil.create('div', '', container);
+    if (this.options.collapsible) {
+      this._renderCollapse(container);
+    }
+    this._treeContainer = L.DomUtil.create('div', 'layer-tree-container', container);
     this._esriProvider = new EsriProvider(map);
     this._leafletProvider = new LeafletProvider(map);
 
