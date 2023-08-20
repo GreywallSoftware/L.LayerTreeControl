@@ -501,8 +501,11 @@ function EsriProvider(map) {
       var children = node.children;
       for (i = 0; i < current.subLayerIds.length; i++) {
         subLayerId = current.subLayerIds[i];
-        child = getTree(subLayers, legends, subLayersAsObject[subLayerId], initialLayerIds, subLayersAsObject);
-        children.push(child);
+        // a visible child layer may have hidden sublayers due to web map configuration. Need to handle that.
+        if (subLayersAsObject[subLayerId]) {
+          child = getTree(subLayers, legends, subLayersAsObject[subLayerId], initialLayerIds, subLayersAsObject);
+          children.push(child);
+        }
       }
       return node;
     } else {
