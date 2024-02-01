@@ -578,6 +578,7 @@ function EsriProvider(map) {
       });
     }
 
+    map.fire('layertreechange', { layerObj, layerIds: nextLayerIds });
     layer.setLayers(nextLayerIds);
   };
 
