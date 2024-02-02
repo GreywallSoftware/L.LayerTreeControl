@@ -64,6 +64,13 @@ L.Control.LayerTreeControl = L.Control.extend({
     });
   },
 
+  /**
+   * convenience method to return the layers currently present in the control
+   */
+  getLayers: function () {
+    return this._layers;
+  },
+
   onAdd: function (map) {
     var container = L.DomUtil.create('div', 'layer-tree-control');
     if (this.options.collapsible) {
