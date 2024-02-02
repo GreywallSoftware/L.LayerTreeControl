@@ -530,6 +530,9 @@ function EsriProvider(map) {
     tree = buildNode({ name: layerName }, initialLayerIds);
     tree.id = layerId;
     children = tree.children;
+    if (initialLayerIds && initialLayerIds.root) {
+      tree.enabled = true;
+    }
 
     for (i = 0; i < subLayers.length; i++) {
       if (subLayers[i].parentLayerId === -1) {
@@ -592,7 +595,14 @@ function EsriProvider(map) {
       const options = layerObj.options;
       var url = options.url;
       const initialLayerIds = {};
-      if (info.visibleLayers) {
+      const alreadyVisibleLayers = layerObj.getLayers();
+      if (alreadyVisibleLayers && alreadyVisibleLayers.length) {
+        // we're already showing something. Have the checkbox state initialize to that.
+        for (const id of alreadyVisibleLayers) {
+          initialLayerIds[id] = true;
+        }
+        initialLayerIds.root = true
+      } else if (info.visibleLayers) {
         for (const id of info.visibleLayers) {
           initialLayerIds[id] = true;
         }
