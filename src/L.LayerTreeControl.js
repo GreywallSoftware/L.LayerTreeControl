@@ -42,7 +42,10 @@ L.Control.LayerTreeControl = L.Control.extend({
         opts.layer = layerObj.layer;
       }
 
-      leafletProvider.getTree(layerId, layerName, opts).then(function (layersTree) {
+      if (layerObj.visible) {
+        this._map.addLayer(layerObj.layer);
+      }
+      leafletProvider.getTree(layerId, layerName, layerObj).then(function (layersTree) {
         treeLeaf = treeLeafUI.render(layersTree, container);
       });
     }
@@ -775,7 +778,8 @@ function LeafletProvider(map) {
   };
 
   return {
-    getTree: function (layerId, layerName, options) {
+    getTree: function (layerId, layerName, layerObj) {
+      const options = layerObj.layer.options;
       if (options.children) {
         var i, tree, subTree, nodeInfo, children;
 
@@ -803,6 +807,9 @@ function LeafletProvider(map) {
         layerInfo.name = layerName;
 
         var leaf = buildLeaf(layerInfo, options.legend);
+        if (layerObj.visible) {
+          leaf.enabled = true; // layer is enabled already when added
+        }
         resolve(leaf);
       });
     },
@@ -817,8 +824,10 @@ function LeafletProvider(map) {
       }
       // single layer
       else {
-        if (addSubLayersIds.length !== 0) addLayers([layerObj.layer]);
+        const add = addSubLayersIds.length !== 0;
+        if (add) addLayers([layerObj.layer]);
         else removeLayers([layerObj.layer]);
+        map.fire('layertreechange', { layerObj, layerIds: add });
       }
     },
   };
