@@ -42,7 +42,10 @@ L.Control.LayerTreeControl = L.Control.extend({
         opts.layer = layerObj.layer;
       }
 
-      leafletProvider.getTree(layerId, layerName, opts).then(function (layersTree) {
+      if (layerObj.visible) {
+        this._map.addLayer(layerObj.layer);
+      }
+      leafletProvider.getTree(layerId, layerName, layerObj).then(function (layersTree) {
         treeLeaf = treeLeafUI.render(layersTree, container);
       });
     }
@@ -62,6 +65,13 @@ L.Control.LayerTreeControl = L.Control.extend({
       const collapsed = container.classList.toggle('layer-tree-control-collapsed');
       _collapseContainer.innerText = collapsed ? 'Expand' : 'Collapse';
     });
+  },
+
+  /**
+   * convenience method to return the layers currently present in the control
+   */
+  getLayers: function () {
+    return this._layers;
   },
 
   onAdd: function (map) {
@@ -530,6 +540,9 @@ function EsriProvider(map) {
     tree = buildNode({ name: layerName }, initialLayerIds);
     tree.id = layerId;
     children = tree.children;
+    if (initialLayerIds && initialLayerIds.root) {
+      tree.enabled = true;
+    }
 
     for (i = 0; i < subLayers.length; i++) {
       if (subLayers[i].parentLayerId === -1) {
@@ -578,6 +591,7 @@ function EsriProvider(map) {
       });
     }
 
+    map.fire('layertreechange', { layerObj, layerIds: nextLayerIds });
     layer.setLayers(nextLayerIds);
   };
 
@@ -591,7 +605,14 @@ function EsriProvider(map) {
       const options = layerObj.options;
       var url = options.url;
       const initialLayerIds = {};
-      if (info.visibleLayers) {
+      const alreadyVisibleLayers = layerObj.getLayers();
+      if (alreadyVisibleLayers && alreadyVisibleLayers.length) {
+        // we're already showing something. Have the checkbox state initialize to that.
+        for (const id of alreadyVisibleLayers) {
+          initialLayerIds[id] = true;
+        }
+        initialLayerIds.root = true
+      } else if (info.visibleLayers) {
         for (const id of info.visibleLayers) {
           initialLayerIds[id] = true;
         }
@@ -757,7 +778,8 @@ function LeafletProvider(map) {
   };
 
   return {
-    getTree: function (layerId, layerName, options) {
+    getTree: function (layerId, layerName, layerObj) {
+      const options = layerObj.layer.options;
       if (options.children) {
         var i, tree, subTree, nodeInfo, children;
 
@@ -785,6 +807,9 @@ function LeafletProvider(map) {
         layerInfo.name = layerName;
 
         var leaf = buildLeaf(layerInfo, options.legend);
+        if (layerObj.visible) {
+          leaf.enabled = true; // layer is enabled already when added
+        }
         resolve(leaf);
       });
     },
@@ -799,8 +824,10 @@ function LeafletProvider(map) {
       }
       // single layer
       else {
-        if (addSubLayersIds.length !== 0) addLayers([layerObj.layer]);
+        const add = addSubLayersIds.length !== 0;
+        if (add) addLayers([layerObj.layer]);
         else removeLayers([layerObj.layer]);
+        map.fire('layertreechange', { layerObj, layerIds: add });
       }
     },
   };
