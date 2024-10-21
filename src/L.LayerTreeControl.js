@@ -14,7 +14,7 @@ L.Control.LayerTreeControl = L.Control.extend({
   addLayer: function (layerObj) {
 
     this._layers.push(layerObj);
-    const layerId = 'layertree-' + L.stamp(layerObj.layer);
+    const layerId = 'layertree-' + L.stamp(layerObj);
     const layerName = layerObj.name;
     var treeLeafUI = this._treeLeafUI;
     const esriProvider = this._esriProvider;
