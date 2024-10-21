@@ -14,7 +14,7 @@ L.Control.LayerTreeControl = L.Control.extend({
   addLayer: function (layerObj) {
 
     this._layers.push(layerObj);
-    const layerId = 'layertree-' + L.stamp(layerObj);
+    const layerId = 'layertree-' + L.stamp(layerObj.layer);
     const layerName = layerObj.name;
     var treeLeafUI = this._treeLeafUI;
     const esriProvider = this._esriProvider;
@@ -22,7 +22,7 @@ L.Control.LayerTreeControl = L.Control.extend({
     const treeContainer = this._treeContainer;
 
     // by creating a placeholder div here, we ensure the order of layers is preserved while the data is fetched
-    const container = L.DomUtil.create('div', '', treeContainer);
+    const container = L.DomUtil.create('div', 'treeControl-layer-' + layerId, treeContainer);
 
     // esriDynamic type
     if (layerObj.type === 'esriDynamic') {
@@ -56,6 +56,16 @@ L.Control.LayerTreeControl = L.Control.extend({
         treeLeaf = treeLeafUI.render(layersTree, container);
       });
     }
+  },
+
+  removeLayer (layerObj) {
+    const stamp = L.stamp(layerObj);
+    const container = this._treeContainer.getElementsByClassName('treeControl-layer-layertree-' + stamp)[0];
+    if (!container) {
+      return;
+    }
+    L.DomUtil.remove(container);
+    this._layers.remove(layerObj);
   },
 
   _renderCollapse: function (container) {
