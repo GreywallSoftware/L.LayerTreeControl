@@ -65,7 +65,10 @@ L.Control.LayerTreeControl = L.Control.extend({
       return;
     }
     L.DomUtil.remove(container);
-    this._layers.remove(layerObj);
+    const index = this._layers.indexOf(layerObj)
+    if (index > -1) {
+      this._layers.splice(index, 1);
+    }
   },
 
   _renderCollapse: function (container) {
