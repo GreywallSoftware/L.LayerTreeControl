@@ -629,6 +629,9 @@ function EsriProvider(map) {
         for (const id of info.visibleLayers) {
           initialLayerIds[id] = true;
         }
+        if (info.visible) {
+          initialLayerIds.root = true
+        }
       }
       let enabledSublayers;
       if (info.subLayersList) {
