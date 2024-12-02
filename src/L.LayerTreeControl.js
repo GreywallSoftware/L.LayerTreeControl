@@ -640,7 +640,7 @@ function EsriProvider(map) {
       return getLayerInfo(url, layerObj).then(function (layerInfo) {
         var subLayers = layerInfo.subLayers;
         var legends = layerInfo.legends;
-        if (subLayers && subLayers.length > 1) {
+        if (subLayers && subLayers.length) {
           const subLayersAsObject = {};
           // The previous code seemed to assume that the "id" values in the sublayers array referred to the index in the array itself.
           // But it doesn't.
